@@ -10,6 +10,30 @@
     body {
     background: #500b75;
     }
+    
+    /* Ajout pour l'image en bas à droite */
+    #logo-bas-droite {
+        position: fixed;
+        right: 2vw;
+        bottom: 4vh;
+        max-width: 10vh;
+        max-height: 10vh;
+        min-width: 40px;
+        min-height: 40px;
+        width: 10vh;
+        height: auto;
+        z-index: 10;
+    }
+
+    @media (max-width: 600px) {
+        #logo-bas-droite {
+            max-width: 12vh;
+            max-height: 8vh;
+            right: 3vw;
+            bottom: 2vh;
+            width: 8vh;
+        }
+    }
 </style>
 <body>
     <div class="d-flex align-items-center justify-content-center vh-100">

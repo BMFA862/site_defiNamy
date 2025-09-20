@@ -2,9 +2,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>site MDP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+<style>
+    body {
+        background: #500b75;
+    }
+    .audio-player {
+        background: #fff2;
+        border-radius: 1.5em;
+        box-shadow: 0 2px 12px #0002;
+        padding: 2em 1.5em 1.5em 1.5em;
+        max-width: 400px;
+        margin: 10vh auto 0 auto;
+    }
+    .progress {
+        height: 0.8rem;
+        background: #fff4;
+        border-radius: 1em;
+        cursor: pointer;
+    }
+    .progress-bar {
+        background: linear-gradient(90deg, #ebf62a 0%, #1bad86 100%);
+        transition: width 0.1s;
+    }
+    .audio-controls {
+        display: flex;
+        align-items: center;
+        gap: 1em;
+        margin-bottom: 1em;
+        justify-content: center;
+    }
+    .time-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.95em;
+        color: #fff;
+        margin-bottom: 0.5em;
+        text-shadow: 0 1px 2px #0008;
+    }
+</style>
 <body>
-    
+    <div class="audio-player">
+        <audio id="audio" src="files/inventé1.mp3"></audio>
+        <div class="audio-controls">
+            <button class="btn btn-warning rounded-circle" id="playPauseBtn" aria-label="Play/Pause" style="width:48px;height:48px;font-size:1.5em;">
+                <i class="bi bi-play-fill" id="playIcon"></i>
+            </button>
+        </div>
+        <div class="time-labels">
+            <span id="currentTime">0:00</span>
+            <span id="duration">0:00</span>
+        </div>
+        <div class="progress" id="progressContainer">
+            <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%"></div>
+        </div>
+        <!-- Bouton Télécharger ajouté ci-dessous -->
+        <div class="d-flex justify-content-center mt-3">
+            <a href="files/inventé1.mp3" download class="btn btn-info">
+                <i class="bi bi-download"></i> Télécharger
+            </a>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <script>
+        const audio = document.getElementById('audio');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const playIcon = document.getElementById('playIcon');
+        const progressBar = document.getElementById('progressBar');
+        const progressContainer = document.getElementById('progressContainer');
+        const currentTimeLabel = document.getElementById('currentTime');
+        const durationLabel = document.getElementById('duration');
+
+        function formatTime(sec) {
+            sec = Math.floor(sec);
+            return Math.floor(sec / 60) + ':' + (sec % 60).toString().padStart(2, '0');
+        }
+
+        audio.addEventListener('loadedmetadata', () => {
+            durationLabel.textContent = formatTime(audio.duration);
+        });
+
+        audio.addEventListener('timeupdate', () => {
+            const percent = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = percent + '%';
+            currentTimeLabel.textContent = formatTime(audio.currentTime);
+        });
+
+        playPauseBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+            } else {
+                audio.pause();
+            }
+        });
+
+        audio.addEventListener('play', () => {
+            playIcon.classList.remove('bi-play-fill');
+            playIcon.classList.add('bi-pause-fill');
+        });
+        audio.addEventListener('pause', () => {
+            playIcon.classList.remove('bi-pause-fill');
+            playIcon.classList.add('bi-play-fill');
+        });
+
+        // Barre de progression interactive (clic/touch)
+        function seek(e) {
+            const rect = progressContainer.getBoundingClientRect();
+            let x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+            x = Math.max(0, Math.min(x, rect.width));
+            const percent = x / rect.width;
+            audio.currentTime = percent * audio.duration;
+        }
+        progressContainer.addEventListener('click', seek);
+        progressContainer.addEventListener('touchstart', function(e) {
+            seek(e);
+            e.preventDefault();
+        });
+
+        // Drag tactile/visuel
+        let dragging = false;
+        progressContainer.addEventListener('mousedown', function(e) {
+            dragging = true;
+        });
+        document.addEventListener('mousemove', function(e) {
+            if (dragging) seek(e);
+        });
+        document.addEventListener('mouseup', function(e) {
+            if (dragging) {
+                seek(e);
+                dragging = false;
+            }
+        });
+        progressContainer.addEventListener('touchmove', function(e) {
+            seek(e);
+        });
+
+        // Réinitialise à la fin
+        audio.addEventListener('ended', () => {
+            playIcon.classList.remove('bi-pause-fill');
+            playIcon.classList.add('bi-play-fill');
+        });
+    </script>
 </body>
 </html>
